@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Зарплаты и авансы</title>
+<style>
+:root{--bg:#f5f4f0;--card:#ffffff;--ink:#1c1d20;--muted:#777a83;--line:#e7e5df;--accent:#1f7a5a;--accent-ink:#ffffff;--accent-soft:#e5f2ec;--bad:#c0392b;--bad-soft:#fbeae8;--chip:#ffffff;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#101113;--card:#1a1b1e;--ink:#f1f1f3;--muted:#9a9ca4;--line:#2a2c30;--accent:#4cc39a;--accent-ink:#0d1f18;--accent-soft:#1c3a2f;--bad:#ff7b6b;--bad-soft:#3a201d;--chip:#1a1b1e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101113;--card:#1a1b1e;--ink:#f1f1f3;--muted:#9a9ca4;--line:#2a2c30;--accent:#4cc39a;--accent-ink:#0d1f18;--accent-soft:#1c3a2f;--bad:#ff7b6b;--bad-soft:#3a201d;--chip:#1a1b1e;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1100px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top,0px)) 16px calc(40px + env(safe-area-inset-bottom,0px))}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+h1{font-size:26px;letter-spacing:-.02em;margin:0}
+h2{font-size:20px;margin:2px 0 0;letter-spacing:-.01em}
+h3{margin:0;font-size:18px}
+.sub{margin:4px 0 0;color:var(--muted);font-size:13px}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.muted{color:var(--muted)}
+.row-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 16px;border-radius:12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:transform .08s,opacity .2s}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.btn.ghost{background:transparent}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:10px}
+.weeks{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 12px;margin:0 -2px;scrollbar-width:none}
+.weeks::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:8px 14px;border-radius:999px;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+.chip.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.weekhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:6px 0 14px;flex-wrap:wrap}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.stat .l{font-size:12px;color:var(--muted);margin-bottom:6px}
+.stat .v{font-size:19px;font-weight:700;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.stat.hi{background:var(--accent-soft);border-color:transparent}
+.emps{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.emp{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.emp-top{display:flex;align-items:center;gap:12px}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;flex:0 0 auto}
+.who{min-width:0;flex:1}
+.who .n{font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who .r{font-size:12px;color:var(--muted)}
+.rem{text-align:right;font-variant-numeric:tabular-nums}
+.rem .v{font-size:18px;font-weight:700}
+.rem .t{font-size:11px;color:var(--muted)}
+.rem.zero .v{color:var(--accent)}
+.rem.over .v{color:var(--bad)}
+.grid3{display:grid;grid-template-columns:auto 1fr 1fr;gap:10px;align-items:end}
+.field{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted);min-width:0}
+.in{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;font-size:15px;font-variant-numeric:tabular-nums;min-width:0}
+.in:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:36px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:18px;cursor:pointer}
+.stepper input{width:64px;text-align:center;padding:10px 4px}
+.calc{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.calc b{color:var(--ink)}
+.bar{height:8px;border-radius:999px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.bar span{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .3s}
+.paidline{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.emp .foot{display:flex;gap:8px}
+.emp .foot .btn{flex:1}
+.hist{border-top:1px dashed var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}
+.hrow{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
+.hrow .m{color:var(--muted);font-size:12px}
+.hrow .amt{font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hleft{min-width:0}
+.who-paid{font-size:12px;color:var(--muted);margin-top:3px}
+.who-paid b{color:var(--ink);font-weight:600}
+.paidby{font-size:12px;color:var(--muted)}
+.paidby b{color:var(--ink);font-weight:600}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-right:6px;font-weight:600}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:18px;padding:40px 20px;text-align:center;color:var(--muted)}
+.empty h2{color:var(--ink)}
+.empty .btn{margin-top:14px}
+.overlay{position:fixed;inset:0;background:rgba(10,10,12,.45);display:flex;align-items:flex-end;justify-content:center;z-index:50;animation:fade .15s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{background:var(--card);color:var(--ink);width:100%;max-width:480px;border-radius:22px 22px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom,0px));max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:14px;animation:up .2s ease}
+@keyframes up{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+@media (min-width:600px){.overlay{align-items:center}.sheet{border-radius:22px}}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:14px;cursor:pointer;background:var(--bg);user-select:none}
+.pill input{display:none}
+.pill:has(input:checked){background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.quick{display:flex;gap:8px;flex-wrap:wrap}
+.quick .btn{padding:7px 12px;font-size:13px}
+.acts{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:4px}
+.acts .btn{flex:1}
+.gform{display:flex;flex-direction:column;gap:12px}
+.srow{display:grid;grid-template-columns:1.3fr 1fr .9fr auto;gap:8px;align-items:center}
+.srow.add{border-top:1px dashed var(--line);padding-top:14px}
+.srow .icon{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--bad);font-size:18px;cursor:pointer}
+.slist{display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow:auto}
+.gate{position:fixed;inset:0;background:var(--bg);z-index:80;display:flex;align-items:center;justify-content:center;padding:20px}
+.gcard{width:100%;max-width:400px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:14px}
+.gcard h2{margin:0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;z-index:90;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:90vw;text-align:center}
+.sync{font-size:12px;color:var(--muted)}
+.wkacts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.roles{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 14px;margin:0 -2px;scrollbar-width:none}
+.roles::-webkit-scrollbar{display:none}
+.rgroup{margin-bottom:20px}
+.rhead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 10px}
+.rhead h3{font-size:16px}
+.rhead span{font-size:12px}
+.iikoline{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.iikoline b{color:var(--accent)}
+.ikbox{border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px;margin:4px 0}
+.ikhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.iklist{max-height:240px;overflow:auto;display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.ikrow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 2px;border-bottom:1px solid var(--line);font-size:14px;cursor:pointer}
+.ikrow input{width:18px;height:18px;accent-color:var(--accent)}
+.ikrow .ikrole{font-size:12px;color:var(--muted)}
+.ikrow.on{opacity:.5;cursor:default}
+.iktick{font-size:11px;color:var(--muted);grid-column:3}
+@media (max-width:720px){
+  .summary{grid-template-columns:repeat(2,1fr)}
+  .emps{grid-template-columns:1fr}
+  .srow{grid-template-columns:1fr 1fr}
+  .srow .in:first-child{grid-column:1/-1}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Зарплаты и авансы</h1>
+      <p class="sub sync" id="sync">Подключение…</p>
+    </div>
+    <div class="row-actions">
+      <span class="muted" id="who" style="font-size:13px"></span>
+      <button class="btn ghost" data-act="logout" id="logout" hidden>Выйти</button>
+      <button class="btn ghost" data-act="staff">Сотрудники</button>
+      <button class="btn primary" data-act="newweek">+ Неделя</button>
+    </div>
+  </header>
+  <nav class="weeks" id="weeks"></nav>
+  <main id="main"></main>
+</div>
+<div class="gate" id="gate" hidden><div class="gcard"></div></div>
+<div class="overlay" id="modal" hidden><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => Math.round(n || 0).toLocaleString('ru-RU') + ' сум';
+const num = v => { const n = parseFloat(String(v ?? '').replace(/\s/g, '').replace(',', '.')); return isFinite(n) ? n : 0; };
+const MONTHS = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+const toISO = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const parseISO = iso => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (iso, n) => { const d = parseISO(iso); d.setDate(d.getDate() + n); return toISO(d); };
+const fmtDate = iso => { const d = parseISO(iso); return d.getDate() + ' ' + MONTHS[d.getMonth()]; };
+const weekTitle = w => `${fmtDate(w.start)} – ${fmtDate(w.end)} ${parseISO(w.end).getFullYear()}`;
+const todayISO = () => toISO(new Date());
+const nextMondayISO = () => { const d = new Date(); const add = (8 - d.getDay()) % 7 || 7; d.setDate(d.getDate() + add); return toISO(d); };
+const KIND = { advance: 'Аванс', salary: 'Зарплата', other: 'Прочее' };
+const initial = n => (n || '?').trim().charAt(0).toUpperCase();
+
+// Должность: у кого не указана — попадает в отдельную группу.
+const roleOf = s => String(s?.role || '').trim() || 'Без должности';
+а // Скрытые убраны с сайта, но остаются в iiko — поэтому в явках их надо по-прежнему узнавать.
+const visibleStaff = () => state.staff.filter(s => !s.hidden);
+// Список должностей для выбора: из iiko плюс те, что уже есть у сотрудников.
+function knownRoles() {
+  const set = new Set();
+  state.staff.forEach(s => { const r = String(s.role || '').trim(); if (r) set.add(r); });
+  (ui.iiko?.list || []).forEach(e => { if (e.role) set.add(e.role); });
+  return [...set].sort((a, b) => a.localeCompare(b, 'ru'));
+}
+function roleSelect(attrs, current) {
+  const cur = String(current || '').trim();
+  const list = knownRoles();
+  if (cur && !list.includes(cur)) list.unshift(cur);
+  return `<select class="in" ${attrs}>
+    <option value="" ${cur ? '' : 'selected'}>Должность</option>
+    ${list.map(r => `<option value="${esc(r)}" ${r === cur ? 'selected' : ''}>${esc(r)}</option>`).join('')}
+  </select>`;
+}
+
+// ---------- state ----------
+// Shared main doc: staff, weeks (shifts, rates, bonuses). Legacy payouts may remain in week.payouts (read-only).
+let state = { staff: [], weeks: [] };
+// Registered managers, keyed by manager id. A manager gets here only after the admin approves the request.
+let managers = {};            // id -> { name, pinHash, pinSalt, createdAt, approvedAt }
+// Registration requests waiting for the admin: pending / rejected.
+let myRequest = null;         // this browser's own request
+// Payouts, keyed by the author's manager id. Each manager can only write under their own id.
+let logs = {};                // id -> [ { id, weekId, staffId, kind, amount, date, note, managerName } ]
+const logSubs = {};
+const ui = { weekId: null, modal: null, open: {}, armed: null, uid: null, managersReady: false, reqReady: false, loginAs: null, regOpen: false, gateSig: null, iiko: null, role: null };
+let db = null, user = null, lastJSON = '', saveChain = Promise.resolve();
+let renderQueued = false;
+let session = null;           // saved login on this browser: { id, pin }
+let pending = null;           // this browser's own request: { id, pin, name }
+// Явки из iiko за выбранную неделю: кто открыл смену, когда закрыл.
+let att = { weekId: null, loading: false, error: null, items: [], syncedAt: 0 };
+let reqSub = null;
+
+const me = () => (ui.uid && managers[ui.uid]) || null;
+const managerName = uid => managers[uid]?.name || 'Удалённый менеджер';
+
+// PIN менеджера — это опознание, а не защита: база открыта без авторизации, поэтому стойкость хеша
+// тут ничего не решает, зато он считается одинаково в любом браузере (crypto.subtle недоступен на http по локальной сети).
+const mgrHash = (pin, salt) => {
+  const s = 'payroll::' + (salt || '') + '::' + pin;
+  let a = 5381, b = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    a = ((a * 33) ^ c) >>> 0;
+    b = ((b ^ c) * 16777619) >>> 0;
+  }
+  return a.toString(16).padStart(8, '0') + b.toString(16).padStart(8, '0');
+};
+
+const SESSION_KEY = 'payroll_manager_session';
+const REQ_KEY = 'payroll_manager_request';
+function readStore(key) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+function writeStore(key, val) {
+  try { if (val) localStorage.setItem(key, JSON.stringify(val)); else localStorage.removeItem(key); } catch (e) { }
+}
+
+function normalize(s) {
+  const weeks = toList(s?.weeks).map(w => (w.payouts ? { ...w, payouts: toList(w.payouts) } : w));
+  return { staff: toList(s?.staff), weeks };
+}
+function week() {
+  let w = state.weeks.find(x => x.id === ui.weekId);
+  if (!w && state.weeks.length) {
+    // По умолчанию открываем текущую неделю, а не самую позднюю (иначе попадаем в будущую без явок).
+    const t = todayISO();
+    w = state.weeks.find(x => x.start <= t && t <= x.end)
+      || [...state.weeks].sort((a, b) => b.start.localeCompare(a.start))[0];
+    ui.weekId = w.id;
+  }
+  return w || null;
+}
+function line(w, sid) {
+  const st = state.staff.find(s => s.id === sid);
+  const l = w.lines?.[sid];
+  return { shifts: l?.shifts ?? 0, rate: l?.rate ?? st?.rate ?? 0, bonus: l?.bonus ?? 0 };
+}
+function setLine(w, sid, patch) {
+  w.lines = w.lines || {};
+  w.lines[sid] = { ...line(w, sid), ...patch };
+}
+const earned = (w, sid) => { const l = line(w, sid); return l.shifts * l.rate + l.bonus; };
+
+// All payouts for an employee in a week: legacy (main doc) + per-manager logs.
+function payoutsOf(w, sid) {
+  const legacy = (w.payouts || []).filter(p => p.staffId === sid).map(p => ({
+    ...p, managerName: p.manager || 'Прежние записи',
+  }));
+  const fresh = Object.entries(logs).flatMap(([authorId, items]) =>
+    items.filter(i => i.weekId === w.id && i.staffId === sid).map(i => ({
+      ...i, managerName: i.managerName || managerName(authorId),
+    })));
+  return [...legacy, ...fresh];
+}
+const paidOf = (w, sid) => payoutsOf(w, sid).reduce((a, p) => a + p.amount, 0);
+const remainOf = (w, sid) => earned(w, sid) - paidOf(w, sid);
+
+// ---------- persistence ----------
+function persist() {
+  const json = JSON.stringify(state);
+  lastJSON = json;
+  if (!db) return;
+  setSync('saving');
+  saveChain = saveChain
+    .then(() => db.doc('payroll/main').set(JSON.parse(json)))
+    .then(() => setSync('ok'))
+    .catch(e => { console.error(e); setSync('err'); toast(errText(e)); });
+}
+function errText(e) {
+  return e?.code === 'invalid_argument' ? 'Нет прав на это действие' : 'Не удалось сохранить, попробуйте ещё раз';
+}
+function setSync(s) {
+  const el = $('#sync');
+  el.textContent = {
+    saving: 'Сохранение…',
+    ok: '● Сохранено',
+    err: '● Ошибка сохранения',
+    nodb: '● Нет подключения к базе — данные не сохранятся',
+  }[s] || 'Подключение…';
+  el.style.color = s === 'err' || s === 'nodb' ? 'var(--bad)' : '';
+}
+let toastT;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg; t.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600);
+}
+
+// Writes a single payout into this manager's own log. Rules on the server allow writes only to the author's own subtree.
+// Payouts are append-only: the interface has no way to delete or edit them.
+async function savePayout(id, item) {
+  if (!db || !ui.uid) throw new Error('no-db');
+  (logs[ui.uid] = logs[ui.uid] || []).push({ id, ...item });
+  render();
+  try { await db.doc(`log/${ui.uid}/items/${id}`).set(item); setSync('ok'); }
+  catch (e) { console.error(e); logs[ui.uid] = logs[ui.uid].filter(x => x.id !== id); render(); setSync('err'); toast(errText(e)); }
+}
+
+// ---------- rendering ----------
+function scheduleRender() {
+  if (renderQueued) return;
+  renderQueued = true;
+  requestAnimationFrame(() => { renderQueued = false; if (ui.modal) { ui.pending = true; } render(); });
+}
+
+function render() {
+  const wb = $('#who');
+  const cur = me();
+  wb.textContent = cur ? '👤 ' + cur.name : '';
+  $('#logout').hidden = !cur;
+  renderGate();
+  if (!cur && ui.managersReady) return;
+  const w = week();
+  $('#weeks').innerHTML = weeksNav();
+  $('#weeks').hidden = !state.weeks.length;
+  $('#main').innerHTML = mainHtml(w);
+  renderModal();
+}
+
+function weeksNav() {
+  return [...state.weeks].sort((a, b) => b.start.localeCompare(a.start)).map(w =>
+    `<button class="chip ${w.id === ui.weekId ? 'active' : ''}" data-act="week" data-id="${w.id}">${weekTitle(w)}</button>`
+  ).join('');
+}
+
+function emptyBox(title, text, btn) {
+  return `<div class="empty"><h2>${title}</h2><p>${text}</p><button class="btn primary" data-act="${btn.act}">${btn.label}</button></div>`;
+}
+
+function mainHtml(w) {
+  if (!visibleStaff().length) {
+    if (att.loading) return `<div class="empty"><h2>Загружаю сотрудников из iiko</h2><p>Карточки создаются по фактическим явкам за неделю…</p></div>`;
+    return emptyBox('Добавьте сотрудников', 'Укажите имя, должность и ставку за смену — дальше можно заполнять недели.', { act: 'staff', label: 'Сотрудники' });
+  }
+  if (!w) return emptyBox('Создайте первую неделю', 'Выберите даты недели — все сотрудники появятся в ней автоматически.', { act: 'newweek', label: '+ Неделя' });
+  const staff = visibleStaff().sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  let E = 0, P = 0, S = 0;
+  staff.forEach(s => { E += earned(w, s.id); P += paidOf(w, s.id); S += line(w, s.id).shifts; });
+  // Группируем по должности: Повара, Кассиры, Официанты и т.д.
+  const groups = new Map();
+  staff.forEach(s => {
+    const r = roleOf(s);
+    if (!groups.has(r)) groups.set(r, []);
+    groups.get(r).push(s);
+  });
+  const roles = [...groups.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], 'ru'));
+  if (ui.role && !roles.some(([r]) => r === ui.role)) ui.role = null; // выбранной должности больше нет
+  const shown = roles.filter(([r]) => !ui.role || r === ui.role);
+  const roleNav = `<nav class="roles">
+    <button class="chip ${!ui.role ? 'active' : ''}" data-act="role" data-role="">Все (${staff.length})</button>
+    ${roles.map(([r, g]) => `<button class="chip ${ui.role === r ? 'active' : ''}" data-act="role" data-role="${esc(r)}">${esc(r)} (${g.length})</button>`).join('')}
+  </nav>`;
+  return `
+    <div class="weekhead">
+      <div><div class="eyebrow">Неделя</div><h2>${weekTitle(w)}</h2></div>
+      <div class="wkacts">
+        ${att.weekId === w.id && att.loading ? '<span class="muted" style="font-size:12px">Явки: загрузка…</span>' : ''}
+        ${att.weekId === w.id && att.error ? `<span class="muted" style="font-size:12px;color:var(--bad)">${esc(att.error)}</span>` : ''}
+        ${att.weekId === w.id && att.items.length ? `<span class="muted" style="font-size:12px">Явок в iiko: ${att.items.length}</span>` : ''}
+        <button class="btn ghost sm" data-act="refresh-att">Явки из iiko</button>
+        <button class="btn ghost sm" data-act="fill-shifts">Смены по явкам</button>
+      </div>
+    </div>
+    <section class="summary">
+      <div class="stat"><div class="l">Начислено</div><div class="v">${money(E)}</div></div>
+      <div class="stat"><div class="l">Выдано</div><div class="v">${money(P)}</div></div>
+      <div class="stat hi"><div class="l">Осталось выдать</div><div class="v">${money(Math.max(E - P, 0))}</div></div>
+      <div class="stat"><div class="l">Смен за неделю</div><div class="v">${S.toLocaleString('ru-RU')}</div></div>
+    </section>
+    ${roleNav}
+    ${shown.map(([r, g]) => {
+      let ge = 0, gs = 0;
+      g.forEach(s => { ge += earned(w, s.id); gs += line(w, s.id).shifts; });
+      return `<section class="rgroup">
+        <div class="rhead"><h3>${esc(r)}</h3><span class="muted">${g.length} сотр. · ${gs.toLocaleString('ru-RU')} смен · начислено ${money(ge)}</span></div>
+        <div class="emps">${g.map(s => empCard(w, s)).join('')}</div>
+      </section>`;
+    }).join('')}`;
+}
+
+function empCard(w, s) {
+  const l = line(w, s.id);
+  const e = earned(w, s.id), p = paidOf(w, s.id), r = e - p;
+  const pct = e > 0 ? Math.min(100, Math.max(0, p / e * 100)) : 0;
+  const cls = r < 0 ? 'over' : (r === 0 && e > 0 ? 'zero' : '');
+  const list = payoutsOf(w, s.id).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const byKind = k => list.filter(x => x.kind === k).reduce((a, x) => a + x.amount, 0);
+  const open = !!ui.open[s.id];
+  const attList = attOf(s, w).filter(a => a.from);
+  const attLast = attList[attList.length - 1];
+  const attOpen = attList.some(a => !a.to);
+  const attHtml = attList.length ? `<div class="muted" style="font-size:12px;margin:2px 0 6px">Явки из iiko · ${attHours(attList)}</div>` +
+    attList.map(a => `
+    <div class="hrow">
+      <div class="hleft">
+        <div><span class="tag">Явка</span><span class="m">${dayMonth(a.from)} · ${hhmm(a.from)} → ${a.to ? hhmm(a.to) : 'не закрыта'}</span></div>
+        <div class="who-paid">${esc(a.role || 'iiko')}${a.comment ? ' · ' + esc(a.comment) : ''}</div>
+      </div>
+      <span class="amt">${a.to ? durText(a.from, a.to) : 'открыта'}</span>
+    </div>`).join('') : '';
+  const histHtml = list.length ? list.map(x => `
+    <div class="hrow">
+      <div class="hleft">
+        <div><span class="tag">${KIND[x.kind] || 'Выплата'}</span><span class="m">${fmtDate(x.date)}${x.note ? ' · ' + esc(x.note) : ''}</span></div>
+        <div class="who-paid">Выдал: <b>${esc(x.managerName)}</b></div>
+      </div>
+      <span class="amt">${money(x.amount)}</span>
+    </div>`).join('') : `<div class="muted" style="font-size:13px">Выплат пока нет</div>`;
+
+  return `
+  <article class="emp">
+    <div class="emp-top">
+      <div class="avatar">${esc(initial(s.name))}</div>
+      <div class="who"><div class="n">${esc(s.name)}</div><div class="r">${esc(s.role) || 'Сотрудник'}${s.iikoId ? ' · iiko' : ''}</div></div>
+      <div class="rem ${cls}"><div class="v">${money(Math.abs(r))}</div><div class="t">${r < 0 ? 'переплата' : r === 0 && e > 0 ? 'расчёт закрыт' : 'осталось'}</div></div>
+    </div>
+    <div class="grid3">
+      <label class="field">Смен
+        <div class="stepper">
+          <button data-act="step" data-sid="${s.id}" data-d="-1">−</button>
+          <input class="in" inputmode="decimal" value="${l.shifts}" data-chg="line" data-f="shifts" data-sid="${s.id}">
+          <button data-act="step" data-sid="${s.id}" data-d="1">+</button>
+        </div>
+      </label>
+      <label class="field">Ставка, сум
+        <input class="in" inputmode="numeric" value="${l.rate}" data-chg="line" data-f="rate" data-sid="${s.id}">
+      </label>
+      <label class="field">Премия, сум
+        <input class="in" inputmode="numeric" value="${l.bonus}" data-chg="line" data-f="bonus" data-sid="${s.id}">
+      </label>
+    </div>
+    <div class="calc"><span>${l.shifts} × ${money(l.rate)}${l.bonus ? ' + премия ' + money(l.bonus) : ''}</span><span>Начислено <b>${money(e)}</b></span></div>
+    <div class="bar"><span style="width:${pct}%"></span></div>
+    <div class="paidline"><span>Выдано <b style="color:var(--ink)">${money(p)}</b></span><span>Аванс ${money(byKind('advance'))} · Зарплата ${money(byKind('salary'))}</span></div>
+    ${list.length ? `<div class="paidby">Последняя выдача: <b>${esc(list[0].managerName)}</b> · ${KIND[list[0].kind] || 'Выплата'} ${money(list[0].amount)} · ${fmtDate(list[0].date)}</div>` : ''}
+    ${attList.length ? `<div class="iikoline">
+      <span>iiko: ${attList.length} ${attList.length === 1 ? 'явка' : 'явок'} · ${attHours(attList)}</span>
+      <span>${attOpen ? '<b>смена открыта</b>' : (attLast ? dayMonth(attLast.from) + ' ' + hhmm(attLast.from) + '–' + hhmm(attLast.to) : '')}</span>
+    </div>` : ''}
+    <div class="foot">
+      <button class="btn primary" data-act="pay" data-sid="${s.id}">Выдать</button>
+      <button class="btn ghost" data-act="hist" data-sid="${s.id}">${open ? 'Скрыть' : 'Явки и выплаты'} (${list.length + attList.length})</button>
+    </div>
+    ${open ? `<div class="hist">${attHtml}${histHtml}</div>` : ''}
+  </article>`;
+}
+
+// ---------- gate: вход по имени и PIN, заявка на доступ ----------
+function renderGate() {
+  const g = $('#gate');
+  const card = g.querySelector('.gcard');
+  if (!db) {
+    g.hidden = false;
+    card.innerHTML = `<h2>Нет подключения</h2><p class="muted" style="margin:0">Страница не смогла подключиться к базе. Проверьте интернет и попробуйте обновить страницу.</p>`;
+    return;
+  }
+  if (me()) { g.hidden = true; ui.gateSig = null; return; }
+  if (!ui.managersReady || !ui.reqReady) { g.hidden = true; return; }
+
+  const people = Object.entries(managers).sort((a, b) => (a[1].name || '').localeCompare(b[1].name || '', 'ru'));
+  const sig = JSON.stringify([myRequest?.status || '', myRequest?.name || '', ui.loginAs || '', ui.regOpen, people.map(([id, m]) => id + ':' + (m.name || '') + (m.pinHash ? 1 : 0))]);
+  if (!g.hidden && sig === ui.gateSig) return; // не перерисовываем форму, пока в неё печатают
+  ui.gateSig = sig;
+  g.hidden = false;
+
+  // Заявка уже отправлена и ждёт решения администратора.
+  if (myRequest && myRequest.status === 'pending') {
+    card.innerHTML = `
+      <h2>Заявка отправлена</h2>
+      <p class="muted" style="margin:0">Имя в заявке: <b style="color:var(--ink)">${esc(myRequest.name)}</b>. Доступ откроется, как только администратор подтвердит регистрацию.</p>
+      <div class="acts"><button class="btn ghost" type="button" data-act="refresh">Проверить снова</button></div>`;
+    return;
+  }
+
+  // Заявку отклонили — можно отправить повторно.
+  if (myRequest && myRequest.status === 'rejected') {
+    card.innerHTML = `
+      <h2>Доступ отклонён</h2>
+      <p class="muted" style="margin:0">Администратор отклонил заявку для «${esc(myRequest.name)}». Если это ошибка — отправьте заявку ещё раз или свяжитесь с администратором.</p>
+      <div class="acts"><button class="btn primary" type="button" data-act="resend">Отправить заявку снова</button></div>`;
+    return;
+  }
+
+  card.innerHTML = `
+    <h2>Вход</h2>
+    <p class="muted" style="margin:0">${people.length ? 'Выберите себя и введите свой PIN.' : 'Пока никто не зарегистрирован. Отправьте заявку — администратор её подтвердит.'}</p>
+    ${people.length ? `<div style="display:flex;flex-wrap:wrap;gap:8px">${people.map(([id, m]) =>
+      `<button class="chip ${ui.loginAs === id ? 'active' : ''}" type="button" data-act="pick" data-id="${esc(id)}">${esc(m.name)}</button>`).join('')}</div>` : ''}
+    ${ui.loginAs ? loginFormHtml() : ''}
+    <details ${ui.regOpen ? 'open' : ''} style="border-top:1px solid var(--line);padding-top:12px">
+      <summary style="cursor:pointer;font-size:13px;color:var(--muted)">Меня нет в списке — отправить заявку</summary>
+      <form data-form="register" class="gform" style="margin-top:12px">
+        <label class="field">Имя — так оно будет видно в выдачах
+          <input class="in" name="name" placeholder="Ваше имя" value="${esc(myRequest?.name || '')}" required>
+        </label>
+        <label class="field">Придумайте PIN
+          <input class="in" name="pin" type="password" inputmode="numeric" autocomplete="new-password" required>
+        </label>
+        <label class="field">Повторите PIN
+          <input class="in" name="pin2" type="password" inputmode="numeric" autocomplete="new-password" required>
+        </label>
+        <div class="acts"><button class="btn primary" type="submit">Отправить заявку</button></div>
+      </form>
+    </details>`;
+}
+
+function loginFormHtml() {
+  const m = managers[ui.loginAs];
+  if (!m) return '';
+  if (!m.pinHash) return `
+    <p class="muted" style="margin:0">Для «${esc(m.name)}» PIN ещё не задан — его задаёт администратор. После этого вход откроется.</p>
+    <div class="acts"><button class="btn ghost" type="button" data-act="pick" data-id="">Выбрать другое имя</button></div>`;
+  return `
+    <form data-form="login" class="gform">
+      <label class="field">PIN для «${esc(m.name)}»
+        <input class="in" name="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
+      </label>
+      <div class="acts"><button class="btn primary" type="submit">Войти</button></div>
+    </form>`;
+}
+
+// ---------- modals ----------
+function renderModal() {
+  const m = ui.modal, el = $('#modal'), sh = $('#sheet');
+  if (!m) { el.hidden = true; sh.innerHTML = ''; return; }
+  el.hidden = false;
+  let html = '';
+  if (m.type === 'week') html = weekForm();
+  else if (m.type === 'pay') html = payForm(m.sid);
+  else if (m.type === 'staff') html = staffForm();
+  sh.innerHTML = html;
+  const f = sh.querySelector('[name=amount],[name=start]');
+  if (f) f.focus();
+}
+
+function weekForm() {
+  return `
+    <h3>Новая неделя</h3>
+    <form data-form="week" style="display:flex;flex-direction:column;gap:12px">
+      <label class="field">Понедельник недели
+        <input class="in" type="date" name="start" value="${nextMondayISO()}" required>
+      </label>
+      <p class="muted" style="margin:0;font-size:13px">Неделя длится 7 дней. Все сотрудники появятся с нулевыми сменами.</p>
+      <div class="acts"><button class="btn ghost" type="button" data-act="close">Отмена</button><button class="btn primary" type="submit">Создать</button></div>
+    </form>`;
+}
+
+function payForm(sid) {
+  const w = week(); const s = state.staff.find(x => x.id === sid); const m = me();
+  if (!w || !s || !m) return '';
+  const r = Math.max(0, remainOf(w, sid));
+  return `
+    <h3>Выдача: ${esc(s.name)}</h3>
+    <div class="muted" style="font-size:14px">Осталось по расчёту: <b style="color:var(--ink)">${money(remainOf(w, sid))}</b></div>
+    <form data-form="pay" data-sid="${sid}" style="display:flex;flex-direction:column;gap:12px">
+      <div class="pills">
+        ${Object.entries(KIND).map(([k, v]) => `<label class="pill"><input type="radio" name="kind" value="${k}" ${k === (r > 0 ? 'advance' : 'salary') ? 'checked' : ''}>${v}</label>`).join('')}
+      </div>
+      <label class="field">Сумма, сум
+        <input class="in" name="amount" inputmode="numeric" value="${r}" required>
+      </label>
+      <div class="quick">
+        <button class="btn" type="button" data-act="quick" data-v="rem">Весь остаток</button>
+        <button class="btn" type="button" data-act="quick" data-v="half">Половина</button>
+        <button class="btn" type="button" data-act="quick" data-v="zero">Очистить</button>
+      </div>
+      <div class="muted" style="font-size:13px">Выдаёт: <b style="color:var(--ink)">${esc(m.name)}</b></div>
+      <label class="field">Дата<input class="in" type="date" name="date" value="${todayISO()}" required></label>
+      <label class="field">Комментарий<input class="in" name="note" placeholder="необязательно"></label>
+      <div class="acts"><button class="btn ghost" type="button" data-act="close">Отмена</button><button class="btn primary" type="submit">Выдать</button></div>
+    </form>`;
+}
+
+function staffForm() {
+  const rows = visibleStaff().sort((a, b) => a.name.localeCompare(b.name, 'ru')).map(s => {
+    const key = 'staff:' + s.id, armed = ui.armed === key;
+    return `<div class="srow">
+      <input class="in" value="${esc(s.name)}" data-chg="staff" data-f="name" data-sid="${s.id}" placeholder="Имя">
+      ${roleSelect(`data-chg="staff" data-f="role" data-sid="${s.id}"`, s.role)}
+      <input class="in" inputmode="numeric" value="${s.rate || ''}" data-chg="staff" data-f="rate" data-sid="${s.id}" placeholder="Ставка/смена">
+      <button class="icon" data-act="arm" data-key="${key}" title="Убрать с сайта" style="${armed ? 'width:auto;padding:0 10px;font-size:13px;font-weight:600' : ''}">${armed ? 'Точно?' : '✕'}</button>
+    </div>`;
+  }).join('');
+  return `
+    <h3>Сотрудники</h3>
+    ${iikoSection()}
+    <div class="slist">${rows || '<div class="muted">Пока никого. Добавьте первого сотрудника ниже.</div>'}</div>
+    <form data-form="addstaff" class="srow add">
+      <input class="in" name="name" placeholder="Имя" required>
+      ${roleSelect('name="role"', '')}
+      <input class="in" name="rate" inputmode="numeric" placeholder="Ставка/смена">
+      <button class="btn primary" type="submit">Добавить</button>
+    </form>
+    ${hiddenSection()}
+    ${managersSection()}
+    <div class="acts"><button class="btn primary" type="button" data-act="close">Готово</button></div>`;
+}
+
+// Убранные с сайта, но оставшиеся в iiko. Данные (смены, ставка, выплаты) сохраняются.
+function hiddenSection() {
+  const hid = state.staff.filter(s => s.hidden);
+  if (!hid.length) return '';
+  const rows = hid.sort((a, b) => a.name.localeCompare(b.name, 'ru')).map(s => `<div class="srow">
+      <div class="in" style="display:flex;align-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis">${esc(s.name)}</div>
+      <div class="in" style="display:flex;align-items:center;color:var(--muted)">${esc(roleOf(s))}</div>
+      <span class="muted" style="font-size:12px;align-self:center">${s.iikoId ? 'есть в iiko' : 'добавлен вручную'}</span>
+      <button class="btn ghost sm" data-act="unhide" data-sid="${s.id}">Вернуть</button>
+    </div>`).join('');
+  return `<h3 style="margin-top:6px">Убранные с сайта (${hid.length})</h3>
+    <p class="muted" style="margin:0;font-size:13px">В iiko они остаются — явки по ним продолжают приходить, просто карточек на сайте нет.</p>
+    <div class="slist">${rows}</div>`;
+}
+
+function managersSection() {
+  const rows = Object.entries(managers).sort((a, b) => (a[1].name || '').localeCompare(b[1].name || '', 'ru')).map(([id, m]) => {
+    const isMe = id === ui.uid;
+    return `<div class="srow">
+      ${isMe
+        ? `<input class="in" value="${esc(m.name)}" data-chg="mgr" data-sid="${id}" placeholder="Ваше имя">`
+        : `<div class="in" style="display:flex;align-items:center">${esc(m.name)}</div>`}
+      <span class="muted" style="font-size:12px;align-self:center">${isMe ? 'это вы' : 'менеджер'}</span>
+      <span></span>
+      <span></span>
+    </div>`;
+  }).join('');
+  return `<h3 style="margin-top:6px">Менеджеры</h3>
+    <p class="muted" style="margin:0;font-size:13px">Новые менеджеры подключаются по заявке — доступ подтверждает администратор в админке. Отозвать доступ тоже может только администратор.</p>
+    <div class="slist">${rows || '<div class="muted">Пока никого</div>'}</div>`;
+}
+
+// ---------- iiko: явки и состав сотрудников ----------
+// «Темур (кц)» и «Темур» — один человек: скобки, дефисы и знаки отбрасываем.
+const nameKey = n => String(n || '').toLowerCase().replace(/ё/g, 'е')
+  .replace(/\([^)]*\)/g, ' ').replace(/[^0-9a-zа-я\s]/gi, ' ').replace(/\s+/g, ' ').trim();
+const hhmm = iso => { const d = new Date(iso); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+const dayMonth = iso => { const d = new Date(iso); return d.getDate() + ' ' + MONTHS[d.getMonth()]; };
+function durText(a, b) {
+  if (!a || !b) return '';
+  const ms = new Date(b) - new Date(a);
+  if (!isFinite(ms) || ms <= 0) return '';
+  const h = Math.floor(ms / 3600000), m = Math.round(ms % 3600000 / 60000);
+  return h + ' ч' + (m ? ' ' + m + ' м' : '');
+}
+function attHours(list) {
+  let ms = 0;
+  list.forEach(a => { if (a.from && a.to) { const d = new Date(a.to) - new Date(a.from); if (d > 0) ms += d; } });
+  const h = Math.floor(ms / 3600000), m = Math.round(ms % 3600000 / 60000);
+  return h + ' ч' + (m ? ' ' + m + ' м' : '');
+}
+// Явки сотрудника за неделю: по id из iiko, а для карточек без привязки — по имени.
+function attOf(s, w) {
+  if (!w || att.weekId !== w.id || !att.items.length) return [];
+  const nk = nameKey(s.name);
+  return att.items
+    .filter(a => (s.iikoId && a.employeeId === s.iikoId) || (nk && nameKey(a.name) === nk))
+    .sort((a, b) => String(a.from || '').localeCompare(String(b.from || '')));
+}
+
+// Явки есть, а карточки нет — создаём карточку сотрудника из iiko и сразу ставим число смен по факту.
+function syncIikoStaff(w) {
+  if (!w || att.weekId !== w.id || !att.items.length) return false;
+  const seenIds = new Set();     // уже привязаны к iiko
+  const manualNames = new Set(); // карточки, заведённые вручную — считаем их тем же человеком по имени
+  state.staff.forEach(s => { if (s.iikoId) seenIds.add(s.iikoId); else manualNames.add(nameKey(s.name)); });
+  const groups = new Map();
+  att.items.forEach(a => {
+    if (!a.employeeId || !a.name || !a.from) return;
+    if (seenIds.has(a.employeeId) || manualNames.has(nameKey(a.name))) return;
+    let g = groups.get(a.employeeId);
+    if (!g) { g = { name: a.name, role: a.role, code: a.code, n: 0 }; groups.set(a.employeeId, g); }
+    g.n++;
+  });
+  if (!groups.size) return false;
+  groups.forEach((g, employeeId) => {
+    const s = { id: uid(), name: g.name, role: g.role || '', rate: 0, iikoId: employeeId, iikoCode: g.code || '' };
+    state.staff.push(s);
+    setLine(w, s.id, { shifts: g.n });
+  });
+  return true;
+}
+
+async function loadAttendance(weekId, force) {
+  const w = state.weeks.find(x => x.id === weekId);
+  if (!w) return;
+  if (!force && att.weekId === weekId && (att.items.length || att.loading)) return;
+  att = { weekId, loading: true, error: null, items: att.weekId === weekId ? att.items : [], syncedAt: att.syncedAt };
+  render();
+  try {
+    const r = await fetch('/api/iiko/attendance?from=' + w.start + '&to=' + w.end);
+    const j = await r.json().catch(() => null);
+    if (!r.ok || !j || !j.ok) throw new Error((j && j.error) || ('HTTP ' + r.status));
+    att = { weekId, loading: false, error: null, items: j.items || [], syncedAt: j.syncedAt || Date.now() };
+    if (syncIikoStaff(w)) persist(); // появились новые сотрудники — сохраняем карточки и их смены
+  } catch (e) {
+    att = { weekId, loading: false, error: 'iiko: ' + (e.message || 'ошибка запроса'), items: [], syncedAt: 0 };
+  }
+  render();
+}
+
+// Заполняет «Смен» по факту явок — только тем, кого нашли в iiko.
+function fillShiftsFromIiko() {
+  const w = week();
+  if (!w) return;
+  if (att.weekId !== w.id || !att.items.length) { toast('Сначала загрузите явки'); return; }
+  let n = 0;
+  state.staff.forEach(s => {
+    if (s.hidden) return;
+    const list = attOf(s, w);
+    if (!list.length) return;
+    setLine(w, s.id, { shifts: list.length });
+    n++;
+  });
+  if (!n) { toast('Совпадений с iiko не найдено'); return; }
+  persist(); render();
+  toast('Смены обновлены по явкам: ' + n + ' сотр.');
+}
+
+function importedKeys() {
+  const byId = new Set(), byName = new Set();
+  state.staff.forEach(s => { if (s.iikoId) byId.add(s.iikoId); byName.add(nameKey(s.name)); });
+  return { byId, byName };
+}
+
+async function loadIiko() {
+  if (!ui.modal || ui.modal.type !== 'staff') return;
+  ui.iiko = { loading: true };
+  renderModal();
+  try {
+    const r = await fetch('/api/iiko/staff');
+    const j = await r.json().catch(() => null);
+    if (!r.ok || !j || !j.ok) throw new Error((j && j.error) || ('HTTP ' + r.status));
+    ui.iiko = { list: j.staff || [] };
+  } catch (e) {
+    ui.iiko = { error: 'Не удалось получить список: ' + (e.message || 'ошибка') };
+  }
+  renderModal();
+}
+
+function updateIikoBtn() {
+  const b = $('[data-act="iiko-add"]');
+  if (!b) return;
+  const n = document.querySelectorAll('#sheet input[data-iiko]:checked').length;
+  b.textContent = n ? 'Добавить выбранных (' + n + ')' : 'Добавить выбранных';
+}
+
+function addFromIiko() {
+  const boxes = [...document.querySelectorAll('#sheet input[data-iiko]:checked')];
+  if (!boxes.length) { toast('Отметьте сотрудников'); return; }
+  const byId = {};
+  (ui.iiko?.list || []).forEach(e => { byId[e.id] = e; });
+  let n = 0;
+  boxes.forEach(b => {
+    const e = byId[b.dataset.iiko];
+    if (!e) return;
+    state.staff.push({ id: uid(), name: e.name, role: e.role || '', rate: 0, iikoId: e.id, iikoCode: e.code || '' });
+    n++;
+  });
+  if (!n) return;
+  ui.iiko = null;
+  persist(); render();
+  toast('Добавлено из iiko: ' + n);
+}
+
+function iikoSection() {
+  const i = ui.iiko;
+  const head = `<div class="ikhead">
+      <div><b>Сотрудники из iiko</b><div class="muted" style="font-size:12px">${i && i.list ? 'Получено записей: ' + i.list.length : 'Состав подтягивается из iikoOffice'}</div></div>
+      <button class="btn" type="button" data-act="iiko">${i && i.list ? 'Обновить' : 'Загрузить'}</button>
+    </div>`;
+  if (!i) return `<div class="ikbox">${head}</div>`;
+  if (i.loading) return `<div class="ikbox">${head}<div class="muted" style="font-size:13px">Загружаю…</div></div>`;
+  if (i.error) return `<div class="ikbox">${head}<div class="muted" style="font-size:13px;color:var(--bad)">${esc(i.error)}</div></div>`;
+  const k = importedKeys();
+  const rows = i.list.map(e => {
+    const already = k.byId.has(e.id) || k.byName.has(nameKey(e.name));
+    return `<label class="ikrow ${already ? 'on' : ''}">
+      <input type="checkbox" data-iiko="${esc(e.id)}" ${already ? 'disabled' : ''}>
+      <span>${esc(e.name)}</span>
+      ${already ? '<span class="iktick">уже в списке</span>' : `<span class="ikrole">${esc(e.role || '')}</span>`}
+    </label>`;
+  }).join('');
+  return `<div class="ikbox">${head}
+    <div class="iklist">${rows || '<div class="muted">Список пуст</div>'}</div>
+    <div class="acts"><button class="btn primary" type="button" data-act="iiko-add">Добавить выбранных</button></div>
+  </div>`;
+}
+
+// ---------- actions ----------
+function perform(key) {
+  const [type, id] = key.split(':');
+  if (type === 'staff') {
+    const s = state.staff.find(x => x.id === id);
+    if (s) {
+      // Убираем только с сайта: в iiko сотрудник остаётся, явки по нему продолжают приходить.
+      s.hidden = true;
+      toast('Убран с сайта' + (s.iikoId ? ' — в iiko остаётся' : ' (данные сохранены)'));
+      persist();
+    }
+  }
+  ui.armed = null;
+  render();
+}
+
+// Возвращает скрытого сотрудника обратно на сайт — вместе с его сменами, ставкой и выплатами.
+function unhide(id) {
+  const s = state.staff.find(x => x.id === id);
+  if (!s) return;
+  delete s.hidden;
+  toast('Возвращён: ' + s.name);
+  persist();
+  render();
+}
+
+// Вход в приложение. Идентичность — запись менеджера, которую создаёт админка: id + PIN.
+function enter(id, pin) {
+  ui.uid = id;
+  ui.loginAs = null;
+  ui.gateSig = null;
+  session = { id, pin };
+  writeStore(SESSION_KEY, session);
+  if (pending && pending.id === id) { pending = null; writeStore(REQ_KEY, null); }
+  toast('Вы вошли как ' + (managers[id]?.name || 'менеджер'));
+  render();
+}
+
+function logout() {
+  ui.uid = null;
+  ui.loginAs = null;
+  ui.modal = null;
+  ui.gateSig = null;
+  session = null;
+  writeStore(SESSION_KEY, null);
+  render();
+}
+
+// Сохранённый вход: сверяем PIN с актуальной записью менеджера (админ мог сменить PIN или отозвать доступ).
+function restoreSession() {
+  if (ui.uid || !ui.managersReady || !session || !session.id) return;
+  const m = managers[session.id];
+  if (m && m.pinHash && m.pinHash === mgrHash(session.pin, m.pinSalt)) ui.uid = session.id;
+  else { session = null; writeStore(SESSION_KEY, null); }
+}
+
+// Живой вход: если администратор сменил PIN или отозвал доступ — выкидываем сразу.
+function checkSession() {
+  if (!ui.uid || !session) return;
+  const m = managers[ui.uid];
+  if (m && m.pinHash === mgrHash(session.pin, m.pinSalt)) return;
+  logout();
+  toast('Сессия завершена — войдите заново');
+}
+
+// После одобрения заявки этот браузер заходит сам: PIN уже есть в заявке.
+function tryAutoLogin() {
+  if (ui.uid || !ui.managersReady || !pending || !pending.id || !pending.pin) return;
+  const m = managers[pending.id];
+  if (!m || !m.pinHash || m.pinHash !== mgrHash(pending.pin, m.pinSalt)) return;
+  enter(pending.id, pending.pin);
+}
+
+// Своя заявка на доступ: пока администратор не подтвердит её в админке (/xxx), в приложение не пустит.
+function watchRequest(id) {
+  if (!db || !id) return;
+  if (reqSub) reqSub();
+  const apply = v => {
+    const d = (v && typeof v === 'object') ? v : {};
+    myRequest = d.status ? { ...d, id } : null;
+    ui.reqReady = true;
+    tryAutoLogin();
+    scheduleRender();
+  };
+  reqSub = db.doc('requests/' + id).onSnapshot(snap => apply(snap.data()), e => console.warn('request', e));
+  rtReq('requests/' + id, 'GET').then(apply).catch(() => { ui.reqReady = true; scheduleRender(); });
+}
+
+async function sendRequest(name, pin, resend) {
+  if (!db) return;
+  if (!pending || !pending.id) pending = { id: uid(), pin: '', name: '' };
+  if (resend) {
+    try {
+      await db.doc('requests/' + pending.id).update({ status: 'pending' });
+      toast('Заявка отправлена повторно');
+    } catch (e) { console.error(e); toast(errText(e)); }
+    return;
+  }
+  if (!name || !pin) return;
+  try {
+    const salt = myRequest?.pinSalt || uid();
+    pending = { id: pending.id, pin, name };
+    writeStore(REQ_KEY, pending);
+    watchRequest(pending.id);
+    const payload = { name, pinSalt: salt, pinHash: mgrHash(pin, salt), createdAt: Date.now(), status: 'pending' };
+    await db.doc('requests/' + pending.id).set(payload);
+    myRequest = payload;
+    render();
+    toast('Заявка отправлена — ждите подтверждения');
+  } catch (e) { console.error(e); toast(errText(e)); }
+}
+
+async function renameSelf(name) {
+  if (!db || !ui.uid || !name) return;
+  try { await db.doc('managers/' + ui.uid).update({ name }); }
+  catch (e) { toast(errText(e)); }
+}
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-act]');
+  if (!btn) { if (e.target.id === 'modal') { ui.modal = null; render(); } return; }
+  const act = btn.dataset.act;
+  const w = week();
+  switch (act) {
+    case 'close': ui.modal = null; ui.armed = null; render(); break;
+    case 'newweek': ui.modal = { type: 'week' }; render(); break;
+    case 'staff': ui.modal = { type: 'staff' }; render(); break;
+    case 'logout': logout(); break;
+    case 'pick': ui.loginAs = btn.dataset.id || null; render(); break;
+    case 'resend':
+      if (myRequest?.pinHash) sendRequest('', '', true);
+      else { ui.regOpen = true; render(); }
+      break;
+    case 'refresh': render(); toast('Статус заявки обновлён'); break;
+    case 'week': ui.weekId = btn.dataset.id; ui.role = null; render(); loadAttendance(ui.weekId); break;
+    case 'role': ui.role = btn.dataset.role || null; render(); break;
+    case 'iiko': loadIiko(); break;
+    case 'unhide': unhide(btn.dataset.sid); break;
+    case 'iiko-add': addFromIiko(); break;
+    case 'refresh-att': loadAttendance(ui.weekId, true); break;
+    case 'fill-shifts': fillShiftsFromIiko(); break;
+    case 'step': {
+      if (!w) break;
+      const sid = btn.dataset.sid, cur = line(w, sid).shifts;
+      setLine(w, sid, { shifts: Math.max(0, cur + num(btn.dataset.d)) });
+      persist(); render(); break;
+    }
+    case 'pay': if (!me()) { toast('Войдите как менеджер'); break; } ui.modal = { type: 'pay', sid: btn.dataset.sid }; render(); break;
+    case 'hist': ui.open[btn.dataset.sid] = !ui.open[btn.dataset.sid]; render(); break;
+    case 'quick': {
+      const f = btn.closest('form'); if (!w || !ui.modal) break;
+      const r = Math.max(0, remainOf(w, ui.modal.sid));
+      f.amount.value = btn.dataset.v === 'rem' ? r : btn.dataset.v === 'half' ? Math.round(r / 2) : 0;
+      break;
+    }
+    case 'arm': {
+      const key = btn.dataset.key;
+      if (ui.armed === key) { perform(key); break; }
+      ui.armed = key; render();
+      setTimeout(() => { if (ui.armed === key) { ui.armed = null; render(); } }, 3000);
+      break;
+    }
+  }
+});
+
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.iiko) { updateIikoBtn(); return; } // счётчик выбранных без перерисовки списка
+  if (!t.dataset.chg) return;
+  const sid = t.dataset.sid, f = t.dataset.f;
+  if (t.dataset.chg === 'line') {
+    const w = week(); if (!w) return;
+    setLine(w, sid, { [f]: Math.max(0, num(t.value)) });
+    persist(); render();
+  } else if (t.dataset.chg === 'staff') {
+    const s = state.staff.find(x => x.id === sid); if (!s) return;
+    s[f] = f === 'rate' ? Math.max(0, num(t.value)) : t.value.trim();
+    persist();
+    if (!(ui.modal && ui.modal.type === 'staff')) render();
+  } else if (t.dataset.chg === 'mgr') {
+    renameSelf(t.value.trim());
+  }
+});
+
+document.addEventListener('submit', e => {
+  const form = e.target;
+  const type = form.dataset.form;
+  if (!type) return;
+  e.preventDefault();
+  const fd = new FormData(form);
+
+  if (type === 'register') {
+    const name = String(fd.get('name') || '').trim();
+    const pin = String(fd.get('pin') || '').trim();
+    if (name.length < 2) { toast('Укажите имя'); return; }
+    if (pin.length < 4) { toast('PIN — минимум 4 символа'); return; }
+    if (pin !== String(fd.get('pin2') || '').trim()) { toast('PIN не совпадает'); return; }
+    sendRequest(name, pin, false);
+    return;
+  }
+
+  if (type === 'login') {
+    const m = managers[ui.loginAs];
+    const pin = String(fd.get('pin') || '').trim();
+    if (!m) return;
+    if (m.pinHash && m.pinHash === mgrHash(pin, m.pinSalt)) enter(ui.loginAs, pin);
+    else { toast('Неверный PIN'); form.reset(); }
+    return;
+  }
+
+  if (type === 'week') {
+    const start = fd.get('start');
+    if (!start) return;
+    if (state.weeks.some(x => x.start === start)) { toast('Такая неделя уже есть'); return; }
+    const nw = { id: uid(), start, end: addDays(start, 6), lines: {} };
+    state.weeks.push(nw);
+    ui.weekId = nw.id; ui.modal = null;
+    persist(); render(); toast('Неделя создана');
+  }
+
+  if (type === 'pay') {
+    const w = week(); const sid = form.dataset.sid; const m = me();
+    const amount = Math.round(num(fd.get('amount')));
+    if (!m) { toast('Войдите как менеджер'); return; }
+    if (!w || amount <= 0) { toast('Введите сумму больше нуля'); return; }
+    const id = uid();
+    const item = {
+      weekId: w.id, staffId: sid, kind: fd.get('kind') || 'advance', amount,
+      date: fd.get('date') || todayISO(), note: String(fd.get('note') || '').trim(),
+      managerName: m.name, createdAt: Date.now(),
+    };
+    ui.modal = null;
+    savePayout(id, item);
+    toast('Выдано: ' + money(amount));
+  }
+
+  if (type === 'addstaff') {
+    const name = String(fd.get('name') || '').trim();
+    if (!name) return;
+    state.staff.push({ id: uid(), name, role: String(fd.get('role') || '').trim(), rate: Math.max(0, num(fd.get('rate'))) });
+    persist(); render(); toast('Сотрудник добавлен');
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && ui.modal) { ui.modal = null; ui.armed = null; render(); }
+});
+
+// ---------- database: Firebase Realtime Database over REST (no auth) ----------
+const RTDB_URL = 'https://neonapp-a05b0-default-rtdb.firebaseio.com';
+const rtUrl = p => RTDB_URL + '/' + p.split('/').map(encodeURIComponent).join('/') + '.json';
+const toList = v => Array.isArray(v) ? v.filter(x => x != null)
+  : (v && typeof v === 'object' ? Object.values(v).filter(x => x != null) : []);
+const pendingPaths = new Map();
+function track(path, promise) {
+  pendingPaths.set(path, (pendingPaths.get(path) || 0) + 1);
+  return promise.finally(() => {
+    const n = (pendingPaths.get(path) || 1) - 1;
+    if (n > 0) pendingPaths.set(path, n); else pendingPaths.delete(path);
+  });
+}
+async function rtReq(path, method, body) {
+  const r = await fetch(rtUrl(path), {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  if (!r.ok) {
+    const err = new Error('rtdb ' + r.status);
+    err.code = (r.status === 401 || r.status === 403) ? 'invalid_argument' : 'unavailable';
+    throw err;
+  }
+  return r.status === 204 ? null : r.json();
+}
+// Live updates via RTDB server-sent events; on any change re-read the path.
+function rtListen(path, onValue, onError) {
+  const es = new EventSource(rtUrl(path));
+  const refresh = () => rtReq(path, 'GET').then(onValue).catch(e => onError && onError(e));
+  es.addEventListener('put', refresh);
+  es.addEventListener('patch', refresh);
+  es.onerror = e => onError && onError(e);
+  return () => es.close();
+}
+const rtdb = {
+  doc(path) {
+    return {
+      set: data => track(path, rtReq(path, 'PUT', data)),
+      update: data => track(path, rtReq(path, 'PATCH', data)),
+      delete: () => track(path, rtReq(path, 'DELETE')),
+      onSnapshot(next, onErr) {
+        const id = path.split('/').pop();
+        return rtListen(path, val => next({
+          exists: true, id,
+          metadata: { hasPendingWrites: pendingPaths.has(path) },
+          data: () => val || {},
+        }), onErr);
+      },
+    };
+  },
+  collection(path) {
+    return {
+      onSnapshot(next, onErr) {
+        return rtListen(path, val => next({
+          docs: Object.entries(val || {}).filter(([, d]) => d != null)
+            .map(([id, d]) => ({ id, exists: true, data: () => d })),
+        }), onErr);
+      },
+    };
+  },
+};
+
+// ---------- startup ----------
+function subscribeLogs() {
+  Object.keys(managers).forEach(id => {
+    if (logSubs[id]) return;
+    logSubs[id] = db.collection(`log/${id}/items`).onSnapshot(snap => {
+      logs[id] = snap.docs.filter(d => d.exists).map(d => ({ ...d.data(), id: d.id }));
+      scheduleRender();
+    }, e => console.warn('log', e));
+  });
+}
+
+(() => {
+  db = rtdb;
+  session = readStore(SESSION_KEY);
+  pending = readStore(REQ_KEY);
+  if (pending) watchRequest(pending.id);
+  render();
+
+  // Заявка, отправленная с этого браузера: статус и авто-вход после одобрения.
+  if (!pending) { ui.reqReady = true; }
+
+  db.doc('payroll/main').onSnapshot(snap => {
+    if (snap.metadata.hasPendingWrites) return;
+    const json = JSON.stringify(snap.data());
+    if (json === lastJSON) return;
+    state = normalize(snap.data());
+    lastJSON = json;
+    scheduleRender();
+    loadAttendance(week()?.id); // явки текущей недели подтягиваем один раз, дальше кэш
+  }, e => { console.error(e); setSync('err'); });
+
+  db.collection('managers').onSnapshot(snap => {
+    managers = {};
+    snap.docs.forEach(d => { if (d.exists) managers[d.id] = d.data(); });
+    ui.managersReady = true;
+    restoreSession();
+    checkSession();
+    tryAutoLogin();
+    subscribeLogs();
+    scheduleRender();
+  }, e => { console.error(e); setSync('err'); });
+
+  setSync('ok');
+  render();
+})();
+</script>
+</body>
+</html>
