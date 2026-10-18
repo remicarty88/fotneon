@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Админка · Доступ</title>
+<style>
+:root{--bg:#f5f4f0;--card:#ffffff;--ink:#1c1d20;--muted:#777a83;--line:#e7e5df;--accent:#1f7a5a;--accent-ink:#ffffff;--accent-soft:#e5f2ec;--bad:#c0392b;--bad-soft:#fbeae8;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#101113;--card:#1a1b1e;--ink:#f1f1f3;--muted:#9a9ca4;--line:#2a2c30;--accent:#4cc39a;--accent-ink:#0d1f18;--accent-soft:#1c3a2f;--bad:#ff7b6b;--bad-soft:#3a201d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101113;--card:#1a1b1e;--ink:#f1f1f3;--muted:#9a9ca4;--line:#2a2c30;--accent:#4cc39a;--accent-ink:#0d1f18;--accent-soft:#1c3a2f;--bad:#ff7b6b;--bad-soft:#3a201d;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top,0px)) 16px calc(40px + env(safe-area-inset-bottom,0px))}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+h1{font-size:26px;letter-spacing:-.02em;margin:0}
+h2{font-size:17px;margin:0;letter-spacing:-.01em}
+h3{margin:0;font-size:16px}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.sub{margin:4px 0 0;color:var(--muted);font-size:13px}
+.muted{color:var(--muted)}
+.row-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 16px;border-radius:12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:transform .08s}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.btn.ghost{background:transparent}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
+.cardhead{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.badge{min-width:24px;text-align:center;font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+.badge.hi{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.row:first-of-type{border-top:0}
+.who{min-width:0}
+.who .n{font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who .d{font-size:12px;color:var(--muted);margin-top:2px}
+.pad{padding:8px 0;font-size:14px}
+.in{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;font-size:16px}
+.in:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.field{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted)}
+.gform{display:flex;flex-direction:column;gap:12px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.gatecard{max-width:420px;margin:8vh auto 0;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:14px}
+.gatecard h2{font-size:20px}
+.gatecard p{margin:0}
+details{border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
+summary{cursor:pointer;font-size:13px;color:var(--muted);list-style:none}
+summary::-webkit-details-marker{display:none}
+details .gform{margin-top:12px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;z-index:90;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:90vw;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Админка</div>
+      <h1>Доступ</h1>
+      <p class="sub" id="sync">Подключение…</p>
+    </div>
+    <div class="row-actions" id="top-actions"></div>
+  </header>
+  <main id="main"></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MONTHS = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+// Дата и время: 14 окт 09:35
+const fmtDT = ts => {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+};
+
+// ---------- база: Firebase Realtime Database по REST (без авторизации) ----------
+const RTDB_URL = 'https://neonapp-a05b0-default-rtdb.firebaseio.com';
+const rtUrl = p => RTDB_URL + '/' + p.split('/').map(encodeURIComponent).join('/') + '.json';
+
+async function rtReq(path, method, body) {
+  const r = await fetch(rtUrl(path), {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  if (!r.ok) {
+    const err = new Error('rtdb ' + r.status);
+    err.code = (r.status === 401 || r.status === 403) ? 'invalid_argument' : 'unavailable';
+    throw err;
+  }
+  return r.status === 204 ? null : r.json();
+}
+
+// Следим за узлом: начальное значение сразу, дальше — по событиям сервера.
+function watch(path, cb) {
+  const es = new EventSource(rtUrl(path));
+  const refresh = () => rtReq(path, 'GET').then(cb).catch(e => { console.warn(path, e); setSync(false); });
+  refresh();
+  es.addEventListener('put', refresh);
+  es.addEventListener('patch', refresh);
+  es.onopen = () => setSync(true);
+  es.onerror = () => setSync(false);
+  return () => es.close();
+}
+
+const errText = e => e?.code === 'invalid_argument' ? 'Нет прав на это действие' : 'Не удалось выполнить, попробуйте ещё раз';
+function setSync(ok) {
+  const el = $('#sync');
+  if (ok === null) { el.textContent = 'Подключение…'; el.style.color = ''; return; }
+  el.textContent = ok ? '● Подключено' : '● Нет связи с базой';
+  el.style.color = ok ? '' : 'var(--bad)';
+}
+let toastT;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg; t.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600);
+}
+
+// ---------- состояние ----------
+let pinHash = null;      // сохранённый отпечаток PIN администратора
+let unlocked = false;
+let adminReady = false;  // прочитали ли сохранённый PIN
+let requests = {};       // id -> { name, pinHash, pinSalt, createdAt, status }
+let managers = {};       // id -> { name, pinHash, pinSalt, createdAt, approvedAt }
+let armed = null;        // ключ, ожидающий подтверждения удаления
+let pinFor = null;       // менеджер, которому сейчас задаём PIN
+const SESSION_KEY = 'payroll_admin_session';
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+
+// PIN менеджера хранится так же, как в приложении: соль + хеш. Это опознание, а не защита —
+// база открыта без авторизации, зато такой хеш считается одинаково в любом браузере.
+const mgrHash = (pin, salt) => {
+  const s = 'payroll::' + (salt || '') + '::' + pin;
+  let a = 5381, b = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    a = ((a * 33) ^ c) >>> 0;
+    b = ((b ^ c) * 16777619) >>> 0;
+  }
+  return a.toString(16).padStart(8, '0') + b.toString(16).padStart(8, '0');
+};
+
+// Отпечаток PIN. SHA-256 там, где браузер его даёт (localhost/https), иначе простой хеш.
+async function hashPin(pin) {
+  const s = 'payroll::' + pin;
+  if (window.crypto?.subtle) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+    return 'sha256:' + [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return 'djb2:' + h.toString(16);
+}
+
+// ---------- рендер ----------
+function render() {
+  if (!adminReady) return;
+  $('#top-actions').innerHTML = unlocked
+    ? `<button class="btn ghost sm" data-act="lock">Выйти</button>`
+    : '';
+  if (!pinHash) return renderSetup();
+  if (!unlocked) return renderLogin();
+  renderDash();
+}
+
+function renderSetup() {
+  $('#main').innerHTML = `
+    <div class="gatecard">
+      <h2>Придумайте PIN</h2>
+      <p class="muted">PIN нужен, чтобы только вы могли заходить в админку и подтверждать доступ. Запомните его — восстановить нельзя.</p>
+      <form data-form="setup" class="gform">
+        <label class="field">PIN
+          <input class="in" name="pin" type="password" inputmode="numeric" autocomplete="new-password" required>
+        </label>
+        <label class="field">Повторите PIN
+          <input class="in" name="pin2" type="password" inputmode="numeric" autocomplete="new-password" required>
+        </label>
+        <div class="acts"><button class="btn primary" type="submit">Сохранить PIN</button></div>
+      </form>
+    </div>`;
+  const i = $('#main input'); if (i) i.focus();
+}
+
+function renderLogin() {
+  $('#main').innerHTML = `
+    <div class="gatecard">
+      <h2>Вход в админку</h2>
+      <p class="muted">Введите PIN администратора.</p>
+      <form data-form="login" class="gform">
+        <label class="field">PIN
+          <input class="in" name="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
+        </label>
+        <div class="acts"><button class="btn primary" type="submit">Войти</button></div>
+      </form>
+    </div>`;
+  const i = $('#main input'); if (i) i.focus();
+}
+
+function renderDash() {
+  const reqs = Object.entries(requests)
+    .filter(([, r]) => r && r.status === 'pending')
+    .sort((a, b) => (a[1].createdAt || 0) - (b[1].createdAt || 0));
+  const mgrs = Object.entries(managers)
+    .sort((a, b) => (a[1].name || '').localeCompare(b[1].name || '', 'ru'));
+
+  $('#main').innerHTML = `
+    <section class="card">
+      <div class="cardhead"><h2>Заявки на регистрацию</h2><span class="badge ${reqs.length ? 'hi' : ''}">${reqs.length}</span></div>
+      ${reqs.length ? reqs.map(([id, r]) => `
+        <div class="row">
+          <div class="who">
+            <div class="n">${esc(r.name)}</div>
+            <div class="d">заявка от ${fmtDT(r.createdAt)} · ${r.pinHash ? 'PIN задан' : 'PIN не задан'}</div>
+          </div>
+          <div class="acts">
+            <button class="btn primary sm" data-act="approve" data-id="${esc(id)}">Принять</button>
+            <button class="btn ghost sm" data-act="reject" data-id="${esc(id)}">Отклонить</button>
+          </div>
+        </div>`).join('') : `<div class="muted pad">Новых заявок нет</div>`}
+      <p class="muted pad" style="border-top:1px solid var(--line);margin-top:12px">PIN менеджер придумывает сам при отправке заявки — по нему он потом входит в приложение с любого устройства.</p>
+    </section>
+
+    <section class="card">
+      <div class="cardhead"><h2>Доступ разрешён</h2><span class="badge">${mgrs.length}</span></div>
+      ${mgrs.length ? mgrs.map(([id, m]) => {
+        const key = 'mgr:' + id, arm = armed === key, ask = pinFor === id;
+        return `<div class="row">
+          <div class="who">
+            <div class="n">${esc(m.name)}</div>
+            <div class="d">доступ с ${fmtDT(m.approvedAt || m.createdAt)} · ${m.pinHash ? 'PIN задан' : 'PIN не задан'}</div>
+          </div>
+          <div class="acts">
+            <button class="btn ghost sm" data-act="pin" data-id="${esc(id)}">${m.pinHash ? 'Сменить PIN' : 'Задать PIN'}</button>
+            <button class="btn ${arm ? 'primary' : 'ghost'} sm" data-act="arm" data-key="${esc(key)}">${arm ? 'Точно отозвать?' : 'Отозвать доступ'}</button>
+          </div>
+          ${ask ? `<form data-form="setpin" data-id="${esc(id)}" class="gform" style="flex:1 0 100%;margin-top:12px">
+            <label class="field">Новый PIN для «${esc(m.name)}»
+              <input class="in" name="pin" type="password" inputmode="numeric" autocomplete="new-password" required>
+            </label>
+            <label class="field">Повторите PIN
+              <input class="in" name="pin2" type="password" inputmode="numeric" autocomplete="new-password" required>
+            </label>
+            <div class="acts"><button class="btn primary sm" type="submit">Сохранить PIN</button><button class="btn ghost sm" type="button" data-act="pin" data-id="">Отмена</button></div>
+          </form>` : ''}
+        </div>`;
+      }).join('') : `<div class="muted pad">Пока никого</div>`}
+      <details>
+        <summary>Сменить PIN администратора</summary>
+        <form data-form="change" class="gform">
+          <label class="field">Текущий PIN
+            <input class="in" name="cur" type="password" inputmode="numeric" autocomplete="current-password" required>
+          </label>
+          <label class="field">Новый PIN
+            <input class="in" name="next" type="password" inputmode="numeric" autocomplete="new-password" required>
+          </label>
+          <div class="acts"><button class="btn primary sm" type="submit">Сменить PIN</button></div>
+        </form>
+      </details>
+    </section>`;
+}
+
+// ---------- действия ----------
+document.addEventListener('click', async e => {
+  const btn = e.target.closest('[data-act]');
+  if (!btn) return;
+  const act = btn.dataset.act;
+
+  if (act === 'lock') {
+    unlocked = false; armed = null;
+    sessionStorage.removeItem(SESSION_KEY);
+    render();
+    return;
+  }
+
+  if (act === 'pin') {
+    pinFor = btn.dataset.id || null;
+    render();
+    return;
+  }
+
+  if (act === 'approve') {
+    const id = btn.dataset.id, r = requests[id];
+    if (!r) return;
+    try {
+      const payload = { name: r.name, createdAt: r.createdAt || Date.now(), approvedAt: Date.now() };
+      if (r.pinHash) { payload.pinHash = r.pinHash; payload.pinSalt = r.pinSalt || ''; }
+      await rtReq('managers/' + id, 'PUT', payload);
+      await rtReq('requests/' + id, 'DELETE');
+      toast('Доступ разрешён: ' + r.name);
+    } catch (err) { console.error(err); toast(errText(err)); }
+    return;
+  }
+
+  if (act === 'reject') {
+    const id = btn.dataset.id, r = requests[id];
+    if (!r) return;
+    try {
+      await rtReq('requests/' + id, 'PATCH', { status: 'rejected', decidedAt: Date.now() });
+      toast('Заявка отклонена');
+    } catch (err) { console.error(err); toast(errText(err)); }
+    return;
+  }
+
+  if (act === 'arm') {
+    const key = btn.dataset.key;
+    if (armed === key) {
+      armed = null;
+      const id = key.slice('mgr:'.length);
+      try {
+        await rtReq('managers/' + id, 'DELETE');
+        toast('Доступ отозван');
+      } catch (err) { console.error(err); toast(errText(err)); }
+      render();
+      return;
+    }
+    armed = key;
+    render();
+    setTimeout(() => { if (armed === key) { armed = null; render(); } }, 3000);
+  }
+});
+
+document.addEventListener('submit', async e => {
+  const form = e.target;
+  const type = form.dataset.form;
+  if (!type) return;
+  e.preventDefault();
+  const fd = new FormData(form);
+
+  if (type === 'setup') {
+    const pin = String(fd.get('pin') || '').trim();
+    if (pin.length < 4) { toast('PIN — минимум 4 символа'); return; }
+    if (pin !== String(fd.get('pin2') || '').trim()) { toast('PIN не совпадает'); return; }
+    const h = await hashPin(pin);
+    try {
+      await rtReq('admin/pin', 'PUT', h);
+      unlocked = true;
+      sessionStorage.setItem(SESSION_KEY, h);
+      toast('PIN сохранён');
+      render();
+    } catch (err) { console.error(err); toast(errText(err)); }
+    return;
+  }
+
+  if (type === 'login') {
+    const h = await hashPin(String(fd.get('pin') || '').trim());
+    if (h === pinHash) {
+      unlocked = true;
+      sessionStorage.setItem(SESSION_KEY, h);
+      render();
+      toast('Вход выполнен');
+    } else {
+      toast('Неверный PIN');
+      form.reset();
+    }
+    return;
+  }
+
+  if (type === 'setpin') {
+    const id = form.dataset.id;
+    const pin = String(fd.get('pin') || '').trim();
+    if (!managers[id]) return;
+    if (pin.length < 4) { toast('PIN — минимум 4 символа'); return; }
+    if (pin !== String(fd.get('pin2') || '').trim()) { toast('PIN не совпадает'); return; }
+    const salt = uid();
+    try {
+      await rtReq('managers/' + id, 'PATCH', { pinHash: mgrHash(pin, salt), pinSalt: salt });
+      pinFor = null;
+      render();
+      toast('PIN сохранён — прежние входы этого менеджера закрыты');
+    } catch (err) { console.error(err); toast(errText(err)); }
+    return;
+  }
+
+  if (type === 'change') {
+    const cur = await hashPin(String(fd.get('cur') || '').trim());
+    const pin = String(fd.get('next') || '').trim();
+    if (cur !== pinHash) { toast('Текущий PIN неверный'); return; }
+    if (pin.length < 4) { toast('Новый PIN — минимум 4 символа'); return; }
+    const h = await hashPin(pin);
+    try {
+      await rtReq('admin/pin', 'PUT', h);
+      sessionStorage.setItem(SESSION_KEY, h);
+      form.reset();
+      toast('PIN изменён');
+    } catch (err) { console.error(err); toast(errText(err)); }
+  }
+});
+
+// ---------- старт ----------
+setSync(null);
+watch('admin/pin', v => {
+  pinHash = typeof v === 'string' && v ? v : null;
+  if (pinHash && sessionStorage.getItem(SESSION_KEY) !== pinHash) unlocked = false;
+  adminReady = true;
+  render();
+});
+watch('requests', v => {
+  requests = v && typeof v === 'object' ? v : {};
+  render();
+});
+watch('managers', v => {
+  managers = v && typeof v === 'object' ? v : {};
+  render();
+});
+</script>
+</body>
+</html>
